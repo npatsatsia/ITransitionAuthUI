@@ -13,11 +13,12 @@ const register = async ( username, email, password, registration_time, userID, a
     )
 }
 
-const login = async ( email, password ) => {
+const login = async ( email, password, last_login_time ) => {
     return await authApi.post('/login', 
     {
         email,
-        password
+        password,
+        last_login_time
     },
     {headers: {'Content-Type': 'application/json'}},
     )

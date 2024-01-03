@@ -8,7 +8,7 @@ const RequireAuth = () => {
     const location = useLocation()
 
   return (
-    isLoggedIn
+    localStorage.getItem('jwt')
         ? <Outlet/>
         : <Navigate to={"/signin"} state={{from: location}} replace/>
         );

@@ -2,12 +2,15 @@ import React from 'react'
 import { useDispatch } from 'react-redux'
 import { logout } from '../../slices/auth'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
 
 const Header = ({isManagementPage}) => {
     const dispatch = useDispatch()
+    const navigate = useNavigate()
 
     const handleLogOut = () => {
         dispatch(logout())
+        navigate('/signin')
     }
   return (
     <header style={{ display: isManagementPage ? 'block' : 'none' }}>

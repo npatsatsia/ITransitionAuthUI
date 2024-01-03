@@ -45,7 +45,7 @@ const initialState = {
     postLoading: false,
     removeLoading: false,
     usersArr: [],
-    removed: false,
+    removed: [],
     changed: false,
     error: null
 }

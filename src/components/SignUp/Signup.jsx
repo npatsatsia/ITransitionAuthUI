@@ -1,10 +1,10 @@
 import React from 'react'
 import './Signup.css'
 import { useRef, useState, useEffect } from 'react'
-import {MdCheckCircle, MdOutlineClose, MdInfo, MdCheck } from 'react-icons/md'
+import {MdCheckCircle, MdOutlineClose, MdInfo } from 'react-icons/md'
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
-import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux'
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux'
 import {register} from '../../slices/auth'
 
 
@@ -16,7 +16,6 @@ const Signup = () => {
 
     const userRef = useRef()
     const errorRef = useRef()
-    const formDataRef = useRef();
 
     const [username, setUsername] = useState('')
     const [validUser, setValidUser] = useState(false)
@@ -32,14 +31,30 @@ const Signup = () => {
     const [validPasswordMatch, setValidPasswordMatch] = useState(false)
     const [passwordMatchFocus, setPasswordMatchFocus] = useState(false)
 
-    const [errorMsg, setErrorMsg] = useState('')
-    const [success, setSuccess] = useState(false)
+    const [message, setMessage] = useState('')
 
     const dispatch = useDispatch()
+
+    const navigate = useNavigate()
+
+    const { showMessage } = useSelector((state) => state.message);
+
+
+    const handleSignInClick = () => {
+        // Navigate to the 'signin' route
+        navigate('/signin');
+    };
+
 
     // useEffect(() => {
     //     userRef.current.focus();
     // }, [])
+
+
+    useEffect(() => {
+        setMessage(showMessage)
+        console.log(showMessage)
+    }, [showMessage])
 
     useEffect(() => {
         setValidUser(USER_REGEX.test(username));
@@ -51,17 +66,22 @@ const Signup = () => {
     }, [password, passwordMatch])
 
     useEffect(() => {
-        setErrorMsg('');
+        setMessage('');
     }, [username, password, passwordMatch])
 
+    useEffect(() => {
+        setTimeout(() => {
+          setMessage('')
+        }, 6000);
+      }, [message])
+
     const handleSubmit = (e) => {
-        e.preventDefault();
+        e.preventDefault()
       
         const v1 = USER_REGEX.test(username);
         const v2 = PWD_REGEX.test(password);
         const registration_time = new Date().toISOString();
-        const active = true;
-      
+
         function generateRandomUserId(length) {
           return Array.from({ length }, () => Math.floor(Math.random() * 36).toString(36)).join('');
         }
@@ -69,31 +89,27 @@ const Signup = () => {
         const userID = generateRandomUserId(8);
       
         if (!v1 || !v2) {
-          setErrorMsg("Invalid Entry");
+          setMessage("Invalid Entry");
           return;
         }
       
         try {
-          // Assuming dispatch is available in your component
           const resultAction = dispatch(register({ username: username.toLowerCase(), email: email.toLowerCase(), password, registration_time, userID, active: true }));
-      
+            console.log(resultAction)
           // Check if the action was fulfilled successfully
-          if (register.fulfilled.match(resultAction)) {
-            setErrorMsg('');
-            setSuccess(true);
+          if (resultAction) {
+            setMessage('');
             setUsername('');
             setEmail('');
             setPassword('')
             setPasswordMatch('')
-          } else if (register.rejected.match(resultAction)) {
+          } else if (false === 'rejected') {
             console.error('Error during registration:', resultAction.error.message);
-            setErrorMsg('Registration failed. Please try again.');
-            setSuccess(false);
+            setMessage('Registration failed. Please try again.');
           }
         } catch (error) {
           console.error('Error during registration:', error);
-          setErrorMsg('Registration failed. Please try again.');
-          setSuccess(false);
+          setMessage('Registration failed. Please try again.');
         }
       };
       
@@ -104,7 +120,7 @@ const Signup = () => {
   return (
         <section className='section-body'>
             <div className='section-center'>
-                <p ref={errorRef} className={errorMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errorMsg}</p>
+            <p ref={errorRef} className={`${message === 'successfully registered' ? 'succmsg' : 'errmsg'} ${!message && 'offscreen'}`} aria-live="assertive">{message}</p>
                 <h1>Sign Up</h1>
                 <form className='form-center' onSubmit={handleSubmit}>
                     <label htmlFor="email">
@@ -120,10 +136,7 @@ const Signup = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         value={email}
                         required
-                        // aria-invalid={validUser ? "false" : "true"}
                         aria-describedby="uidnote"
-                        // onFocus={() => setUserFocus(true)}
-                        // onBlur={() => setUserFocus(false)}
                     />
                     <p id="uidnote" className={userFocus && username && !validUser ? "instructions" : "offscreen"}>
                         <MdInfo />
@@ -205,9 +218,7 @@ const Signup = () => {
                 <p>
                     Already registered?<br />
                     <span className="line">
-                        <Link to='/signin'>
-                        <span>Sign In</span>
-                        </Link>
+                        <span onClick={handleSignInClick}>Sign In</span>
                     </span>
                 </p>
             </div>

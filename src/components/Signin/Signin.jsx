@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './Signin.css';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -12,32 +12,46 @@ const Signin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const [success, setSuccess] = useState(false);
   const dispatch = useDispatch()
 
   const navigate = useNavigate();
 
-  const { isLoggedIn, errorMessage } = useSelector(state => state.auth);
+  const { isLoggedIn } = useSelector(state => state.auth);
+  const { showMessage } = useSelector(state => state.message);
+
+  useEffect(() => {
+    setErrorMsg(showMessage)
+  },[showMessage])
+
+  useEffect(() => {
+      if (localStorage.getItem('jwt')) {
+        navigate('/management');
+      }
+  },[isLoggedIn])
+
+  useEffect(() => {
+    setTimeout(() => {
+      setErrorMsg('')
+    }, 6000);
+  }, [errorMsg])
+
+  const handleSignUpClick = () => {
+    // Navigate to the 'signin' route
+    navigate('/signup');
+};
 
   const handleSignin = async (e) => {
     e.preventDefault();
+
+    const currentDate = new Date();
+    const last_login_time = currentDate.toISOString();
   
     try {
-      const response = await axios.post('http://localhost:4000/login', {
-        email: email.toLowerCase(),
-        password,
-      });
-      if (isLoggedIn) {
-        localStorage.setItem('jwt', response.data.accessToken);
-        setSuccess(true);
-        navigate('/management');
-      } else {
-        setErrorMsg('Invalid email or password');
-      }
-    } catch (error) {
+      dispatch(login({email: email.toLowerCase(), password, last_login_time}))
+    } 
+    catch (error) {
       console.error('Error during login:', error);
       console.log(error)
-      // setErrorMsg(error.message);
     }
   };
 
@@ -77,9 +91,7 @@ const Signin = () => {
         <p>
           I Want To Register<br />
           <span className='line'>
-            <Link to='/signup'>
-              <span>Sign Up</span>
-            </Link>
+              <span onClick={handleSignUpClick}>Sign Up</span>
           </span>
         </p>
       </div>

@@ -20,8 +20,7 @@ const UserManagement = () => {
 
   const { isLoggedIn } = useSelector((state) => state.auth);
   const { usersArr, changed, removed } = useSelector((state) => state.users);
-  console.log(removed)
-
+  
   useEffect(() => {
     if(removed === 'Deleted Myself' || changed === 'Blocked Myself'){
       dispatch(logout())
@@ -33,14 +32,14 @@ const UserManagement = () => {
       navigate('/signin')
     }
   }, [])
-
+  
   
   const handleHeaderCheckboxChange = () => {
     const userIDsArray = usersArr.map((user) => user.userID);
     setSelectAll(!selectAll);
     setCheckedUsers(selectAll ? [] : userIDsArray);
   };
-
+  
   const handleCheckboxChange = (userID) => {
     setCheckedUsers((prevUsers) => {
       if (prevUsers.includes(userID)) {
@@ -57,13 +56,13 @@ const UserManagement = () => {
       return setSelectAll(true);
     }else return setSelectAll(false)
   }, [selectAll, checkedUsers, usersArr])
-
+  
   useEffect(() => {
     if(localStorage.getItem("jwt")){
       dispatch(getAllUsers());
     }
-  }, [dispatch, removed, changed]);
-
+  }, [dispatch, changed]);
+  
   const handleChangeUserStatus = (userID) => {
     dispatch(changeUserStatus(userID));
     setStatusChange((prev) => !prev);
@@ -141,8 +140,8 @@ const UserManagement = () => {
               </td>
               <td>
                 <div className='d-flex justify-content-between'>
-                  <button className='btn btn-danger' disabled={!user.active} onClick={() => handleChangeUserStatus(user.userID)}>Block</button>
-                  <button className='btn btn-success d-flex justify-content-between' disabled={user.active} onClick={() => handleChangeUserStatus(user.userID)}><FaLockOpen /></button>
+                <button className='btn btn-danger' disabled={user.active ? false : true} onClick={() => handleChangeUserStatus(user.userID)}>Block</button>
+                  <button className='btn btn-success d-flex justify-content-between' disabled={user.active? true : false} onClick={() => handleChangeUserStatus(user.userID)}><FaLockOpen /></button>
                   <button className='btn btn-light d-flex justify-content-between' onClick={() => handleDelete(user.userID)}><FaTrash /></button>
                 </div>
               </td>
